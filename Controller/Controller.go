@@ -23,7 +23,7 @@ func NewRouter(platform *services.Services) *gin.Engine{
 	book := router.Group("/book")
 	book.GET("/",control.GetAllBooks)
 	book.GET("/:id",control.GetBook)
-	book.POST("/",)
+	book.POST("/",control.AddBook)
 	book.PUT("/:id", )
 	book.DELETE("/:id", )
 	router.GET("/" , control.HelloGuys)
@@ -93,5 +93,46 @@ func (c *Controller) AddBook(ctx *gin.Context)  {
 	ctx.JSON(status, response)
 }
 
+func (c * Controller) UpdateBook(ctx *gin.Context) {
+	var response Response
+	var request Data.Book
+	ctx.Header("Content-Type", "application/json")
+
+	id := ctx.Param("id")
+	if err := ctx.BindJSON(&request); err != nil{
+		response.Message = err.Error()
+		response.Status = http.StatusBadRequest
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	
+	request.ID = id 
+
+	book, err := c.Platform.UpdateBook(request)
+	if err != nil {
+		response.Message = err.Error()
+		response.Status = http.StatusInternalServerError
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+	response.Message = book
+	response.Status = http.StatusOK
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *Controller) DeleteBook(ctx *gin.Context)  {
+	var response Response
+	id := ctx.Param("id")
+	
+	if err := c.Platform.DeleteBook(id); err !=nil{
+		response.Message = err.Error()
+		response.Status = http.StatusInternalServerError
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+	response.Message = nil
+	response.Status = http.StatusOK
+	ctx.JSON(http.StatusOK, response)
+}
 
 
