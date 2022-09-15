@@ -34,11 +34,11 @@ func (s *Services) UpdateBook(book Data.Book) (Data.Book, error){
 	return book, nil
 }
 
-func (s *Services) AddBook(book Data.Book)  (Data.Book, error) {
+func (s *Services) AddBook(book Data.Book)  (Data.Book, int, error) {
 	book.ID = uuid.New().String()
 	book,err := s.Repo.AddBook(book)
 	if err != nil {
-		return Data.Book{}, err
+		return Data.Book{}, 400, err
 	}
-	return book , nil
+	return book, 201, nil
 }
